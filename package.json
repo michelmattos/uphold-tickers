@@ -1,0 +1,31 @@
+{
+  "name": "uphold-tickers",
+  "version": "0.0.0",
+  "description": "A logger for tickers' prices from Uphold.",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.13.4",
+    "lowdb": "^0.12.5",
+    "request": "^2.72.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michelmattos/uphold-tickers.git"
+  },
+  "keywords": [
+    "uphold",
+    "bitcoin",
+    "ticker",
+    "nodejs"
+  ],
+  "author": "Michel Mattos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michelmattos/uphold-tickers/issues"
+  },
+  "homepage": "https://github.com/michelmattos/uphold-tickers#readme"
+}
