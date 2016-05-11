@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Latest Price</title>
+	</head>
+	<body>
+		<div id="main"></div>
+		<script>
+			var source = new EventSource('ticker/usdbrl/latest')
+			source.onmessage = ev => {
+				document.querySelector('#main').innerHTML = ev.data
+			}
+		</script>
+	</body>
+</html>
