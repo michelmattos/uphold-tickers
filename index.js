@@ -1,50 +1,43 @@
 'use strict';
 const express = require('express')
-const low = require('lowdb')
-const storage = require('lowdb/file-async')
 const request = require('request')
+const storage = require('./storage')
 
 const app = express()
-const db = low('db.json', { storage })
-const tickers = db('tickers')
+app.use('/', express.static('public'))
 
-function findPair(pair, tickers) {
-	return tickers.find(t => t.pair === pair)
-}
-
-function parseTicker(ticker, time) {
-	return {
-		pair: ticker.pair,
-		price: ticker.ask,
-		time: time
-	}
-}
-
+var tickers = []
 const timer = setInterval(
 	() => {
 		let time = Date.now()
 		request('https://api.uphold.com/v0/ticker/USD', (err, res, body) => {
 			if (!err && res.statusCode == 200) {
-				let t = JSON.parse(body)
-				let USDBRL = findPair('USDBRL', t)
-				let BTCUSD = findPair('BTCUSD', t)
-				let NZDUSD = findPair('NZDUSD', t)
-				tickers.push(parseTicker(USDBRL, time))
-				tickers.push(parseTicker(BTCUSD, time))
-				tickers.push(parseTicker(NZDUSD, time))
+				tickers = JSON.parse(body)
 			}	
 		})	
 	},
 	1000
 )
 
-app.get('/', (req, res) => {
-	res.json(
-		tickers
-			.chain()
-			.filter({ pair: 'USDBRL' })
-			.sortBy('time')
-			.value()
+app.get('/ticker/:pair/latest', (req, res) => {
+	const pair = req.params.pair.toUpperCase()
+	const id = Date.now();
+	
+	res.set({
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	})
+	
+	setInterval(
+		() => {
+			let ticker = tickers
+				.find(t => t.pair === pair)
+			let price = ticker ? ticker.ask : 'no data'
+			res.write('id: ' + id + '\n')
+			res.write('data: ' + price + '\n\n')
+		},
+		1000
 	)
 })
 
