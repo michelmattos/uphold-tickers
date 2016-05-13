@@ -7,7 +7,7 @@
 	<body>
 		<div id="main"></div>
 		<script>
-			var source = new EventSource('ticker/usdbrl/latest')
+			var source = new EventSource('ticker/usdbrl/stream')
 			source.onmessage = ev => {
 				document.querySelector('#main').innerHTML = ev.data
 			}
