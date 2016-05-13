@@ -1,13 +1,21 @@
 'use strict'
-const low = require('lowdb')
-const storage = require('lowdb/file-async')
+const Datastore = require('nedb')
+const tickers = new Datastore({
+	filename: 'tickers.db',
+	autoload: true
+})
 
-const tickersName = 'tickers.'
+function find(query) {
+	return new Promise((resolve, reject) => {
+		tickers.find(query, (err, docs) => {
+			if (err) reject(err)
+			resolve(docs)
+		})
+	})
+}
 
-const db = low('data.json', { storage })
-
-function getPair(pair) {
-	return db(tickersName + pair.toUpperCase())
+function findByPair(pair) {
+	return find({ pair: pair.toUpperCase() })
 }
 
 function parseTicker(upholdTicker, time) {
@@ -17,4 +25,22 @@ function parseTicker(upholdTicker, time) {
 	}
 }
 
-module.exports = { getPair, parseTicker }
+function save(ticker) {
+	return new Promise((resolve, reject) => {
+		tickers.insert(ticker, (err) => {
+			if (err) reject(err)
+			resolve()
+		})
+	})
+}
+
+function length() {
+	return new Promise((resolve, reject) => {
+		tickers.count({}, (err, count) => {
+			if (err) reject(err)
+			resolve(count)
+		})
+	})
+}
+
+module.exports = { find, findByPair, parseTicker, save, length }
