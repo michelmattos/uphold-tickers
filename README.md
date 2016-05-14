@@ -1,2 +1,5 @@
 # uphold-tickers
-A logger for tickers' prices from Uphold.
+A web service that constantly request and save exchange prices from Uphold.
+
+## Services
+- **UpholdService**: request updated prices from Uphold API every time.
