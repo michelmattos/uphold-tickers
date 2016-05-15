@@ -8,8 +8,8 @@ function start (url, milliseconds) {
 }
 
 function _initTimer (url, emitter, milliseconds) {
-    return setTimeout(
-        _requestUphold(url, emitter),
+    return setInterval(
+        () => _requestUphold(url, emitter),
         milliseconds
     )
 }
@@ -28,7 +28,7 @@ function _requestUphold (url, emitter) {
             if (error)
                 emitter.emit('error', error)
             else if (response.statusCode !== 200)
-                emitter.emit('failed', `Request failed with HTTP Status ${response.statusCode}.`, timeLapsed)
+                emitter.emit('fail', `Request failed with HTTP Status ${response.statusCode}.`, timeLapsed)
             else if (response.statusCode == 200)
                 emitter.emit('success', body, timeLapsed)
         }

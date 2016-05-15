@@ -1,36 +1,29 @@
 'use strict';
 const express = require('express')
-const request = require('request')
+const UpholdService = require('./services/UpholdService')
 const storage = require('./storage')
 
 const app = express()
 app.use('/', express.static('public'))
 
 var tickers = []
-const timer = setInterval(
-	() => {
-		let startTime = Date.now()
-		request('https://api.uphold.com/v0/ticker/USD', (err, res, body) => {
-			if (!err && res.statusCode == 200) {
-				let requestTime = Date.now()
-				let diskTime
-				tickers = JSON.parse(body)
-				for (let ticker of tickers)
-					ticker.time = requestTime
-				storage
-					.save(tickers)
-					.then(() => storage.length())
-					.then(count => {
-						console.log(`Performance: (entries = ${count}) (request = ${(requestTime - startTime) / 1000} secs) (disk = ${(Date.now() - requestTime)/1000} secs)`)
-					})
-					.catch(err => console.log(err))
-			}
-			else if (err)
-				console.log(err)
-		})	
-	},
-	1000
-)
+UpholdService
+	.start('https://api.uphold.com/v0/ticker/USD', 1000)
+	.on('success', (data, timeLapsed) => {
+		let time = Date.now()
+		tickers = data
+		tickers.map(t => t.time = time)
+		storage
+			.save(tickers)
+			.then(() => storage.length())
+			.then(count => {
+				console.log(`Performance: (entries = ${count}) (request = ${timeLapsed/1000} secs) (disk = ${(Date.now() - time)/1000} secs)`)
+			})
+			.catch(err => console.log(err))
+	})
+	.on('fail', (error, timeLapsed) => {
+		console.log(error)
+	})
 
 app.get('/ticker/:pair/stream', (req, res) => {
 	const pair = req.params.pair.toUpperCase()
